@@ -187,3 +187,5 @@ if __name__ == "__main__":
     print "%.2f seconds" % (time.time() - t)
  
     print ebat.ix[:5, :5]
+
+    ebat.to_csv("py-batch.txt", sep="\t")

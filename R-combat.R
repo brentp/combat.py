@@ -18,3 +18,4 @@ cdata = ComBat(dat=edata, batch=as.factor(pheno$batch), mod=mod, numCov=match("a
 print(Sys.time() - t)
 print(cdata[1:5, 1:5])
 
+write.table(cdata, "r-batch.txt", sep="\t", quote=F)
