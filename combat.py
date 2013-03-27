@@ -18,6 +18,7 @@ def design_mat(mod, numCovs, batch_levels):
                                                   mod, return_type="dataframe")
 
     mod = mod.drop(["batch"], axis=1)
+    numCovs = list(numCovs)
     print >>sys.stderr, "found %i batches" % design.shape[1]
     other_cols = [c for i, c in enumerate(mod.columns) if not i in numCovs]
     factor_matrix = mod[other_cols]
@@ -33,9 +34,9 @@ def design_mat(mod, numCovs, batch_levels):
     return design
 
 def combat(dat, batch, mod, numCovs=None):
-    if not isinstance(numCovs, (list, tuple)):
+    if isinstance(numCovs, basestring):
         numCovs = [numCovs]
-    
+
     mod["batch"] = list(batch)
 
     batch_items = mod.groupby("batch").groups.items()
@@ -49,7 +50,8 @@ def combat(dat, batch, mod, numCovs=None):
     drop_cols = [cname for cname, inter in  ((mod == 1).all()).iterkv() if inter == True]
     drop_idxs = [list(mod.columns).index(cdrop) for cdrop in drop_cols]
     mod = mod[[c for c in mod.columns if not c in drop_cols]]
-    numCovs = [list(mod.columns).index(c) if isinstance(c, basestring) else c for c in numCovs]
+    numCovs = [list(mod.columns).index(c) if isinstance(c, basestring) else c
+            for c in numCovs if not c in drop_cols]
 
     design = design_mat(mod, numCovs, batch_levels)
 
