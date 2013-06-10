@@ -36,8 +36,13 @@ def design_mat(mod, numCovs, batch_levels):
 def combat(dat, batch, mod, numCovs=None):
     if isinstance(numCovs, basestring):
         numCovs = [numCovs]
+    if numCovs is None:
+        numCovs = []
 
-    mod["batch"] = list(batch)
+    if mod:
+        mod["batch"] = list(batch)
+    else:
+        mod = pa.DataFrame({'batch': batch})
 
     batch_items = mod.groupby("batch").groups.items()
     batch_levels = [k for k, v in batch_items]
@@ -191,3 +196,6 @@ if __name__ == "__main__":
     print ebat.ix[:5, :5]
 
     ebat.to_csv("py-batch.txt", sep="\t")
+
+    mod = False
+    ebat = combat(dat, pheno.batch, mod)
