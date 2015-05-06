@@ -44,19 +44,22 @@ def combat(data, batch, model=None, numerical_covariates=None):
     data : pandas.DataFrame
         A (n_features, n_samples) dataframe of the expression or methylation
         data to batch correct
-    batch : List or str
-        A single
-    model : patsy.design_info.DesignMatrix
+    batch : List-like
+        A column corresponding to the batches in the data, in the same order
+        as the samples in ``data``
+    model : patsy.design_info.DesignMatrix, optional
         A model matrix describing metadata on the samples which could be
-        causing batch effects
-
+        causing batch effects. If not provided, then will attempt to coarsely
+        correct just from the information provided in ``batch``
+    numerical_covariates : list-like
+        List of covariates in the model which are numerical, rather than
+        categorical
 
     Returns
     -------
+    corrected : pandas.DataFrame
+        A (n_features, n_samples) dataframe of the batch-corrected data
 
-
-    Raises
-    ------
     """
     if isinstance(numerical_covariates, basestring):
         numerical_covariates = [numerical_covariates]
