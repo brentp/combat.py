@@ -1,4 +1,4 @@
-import pandas as pa
+import pandas as pd
 import patsy
 import sys
 import numpy.linalg as la
@@ -23,7 +23,7 @@ def design_mat(mod, numerical_covariates, batch_levels):
     other_cols = [c for i, c in enumerate(mod.columns)
                   if not i in numerical_covariates]
     factor_matrix = mod[other_cols]
-    design = pa.concat((design, factor_matrix), axis=1)
+    design = pd.concat((design, factor_matrix), axis=1)
     if numerical_covariates is not None:
         print >>sys.stderr, "found %i numerical covariates..." \
                             % len(numerical_covariates)
@@ -34,6 +34,7 @@ def design_mat(mod, numerical_covariates, batch_levels):
     print >>sys.stderr, "found %i categorical variables:" % len(other_cols)
     print >>sys.stderr, "\t" + ", ".join(other_cols)
     return design
+
 
 def combat(data, batch, model, numerical_covariates=None):
     """Correct for batch effects in a dataset
@@ -65,7 +66,7 @@ def combat(data, batch, model, numerical_covariates=None):
     if model:
         model["batch"] = list(batch)
     else:
-        model = pa.DataFrame({'batch': batch})
+        model = pd.DataFrame({'batch': batch})
 
     batch_items = model.groupby("batch").groups.items()
     batch_levels = [k for k, v in batch_items]
@@ -134,7 +135,7 @@ def combat(data, batch, model, numerical_covariates=None):
 
         dsq = np.sqrt(delta_star[j,:])
         dsq = dsq.reshape((len(dsq), 1))
-	denom =  np.dot(dsq, np.ones((1, n_batches[j])))
+	    denom =  np.dot(dsq, np.ones((1, n_batches[j])))
         numer = np.array(bayesdata[batch_idxs] - np.dot(batch_design.ix[batch_idxs], gamma_star).T)
 
         bayesdata[batch_idxs] = numer / denom
@@ -207,8 +208,8 @@ if __name__ == "__main__":
         print(cdata[1:5, 1:5])
    """
 
-    pheno = pa.read_table('bladder-pheno.txt', index_col=0)
-    dat = pa.read_table('bladder-expr.txt', index_col=0)
+    pheno = pd.read_table('bladder-pheno.txt', index_col=0)
+    dat = pd.read_table('bladder-expr.txt', index_col=0)
 
     mod = patsy.dmatrix("~ age + cancer", pheno, return_type="dataframe")
     import time
