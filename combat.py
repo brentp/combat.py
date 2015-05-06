@@ -6,26 +6,28 @@ import numpy as np
 
 
 
-def adjust_nums(numCovs, drop_idxs):
+def adjust_nums(numerical_covariates, drop_idxs):
     # if we dropped some values, have to adjust those with a larger index.
-    if numCovs is None: return drop_idxs
-    return [nc - sum(nc < di for di in drop_idxs) for nc in numCovs]
+    if numerical_covariates is None: return drop_idxs
+    return [nc - sum(nc < di for di in drop_idxs) for nc in numerical_covariates]
 
-def design_mat(mod, numCovs, batch_levels):
+def design_mat(mod, numerical_covariates, batch_levels):
     # require levels to make sure they are in the same order as we use in the
     # rest of the script.
     design = patsy.dmatrix("~ 0 + C(batch, levels=%s)" % str(batch_levels),
                                                   mod, return_type="dataframe")
 
     mod = mod.drop(["batch"], axis=1)
-    numCovs = list(numCovs)
+    numerical_covariates = list(numerical_covariates)
     print >>sys.stderr, "found %i batches" % design.shape[1]
-    other_cols = [c for i, c in enumerate(mod.columns) if not i in numCovs]
+    other_cols = [c for i, c in enumerate(mod.columns)
+                  if not i in numerical_covariates]
     factor_matrix = mod[other_cols]
     design = pa.concat((design, factor_matrix), axis=1)
-    if numCovs is not None:
-        print >>sys.stderr, "found %i numerical covariates..." % len(numCovs)
-        for i, nC in enumerate(numCovs):
+    if numerical_covariates is not None:
+        print >>sys.stderr, "found %i numerical covariates..." \
+                            % len(numerical_covariates)
+        for i, nC in enumerate(numerical_covariates):
             cname = mod.columns[nC]
             print >>sys.stderr, "\t", cname
             design[cname] = mod[mod.columns[nC]]
@@ -33,18 +35,39 @@ def design_mat(mod, numCovs, batch_levels):
     print >>sys.stderr, "\t" + ", ".join(other_cols)
     return design
 
-def combat(dat, batch, mod, numCovs=None):
-    if isinstance(numCovs, basestring):
-        numCovs = [numCovs]
-    if numCovs is None:
-        numCovs = []
+def combat(data, batch, model, numerical_covariates=None):
+    """Correct for batch effects in a dataset
 
-    if mod:
-        mod["batch"] = list(batch)
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        A (n_features, n_samples) dataframe of the expression or methylation
+        data to batch correct
+    batch : List or str
+        A single
+    model : patsy.design_info.DesignMatrix
+        A model matrix describing metadata on the samples which could be
+        causing batch effects
+
+
+    Returns
+    -------
+
+
+    Raises
+    ------
+    """
+    if isinstance(numerical_covariates, basestring):
+        numerical_covariates = [numerical_covariates]
+    if numerical_covariates is None:
+        numerical_covariates = []
+
+    if model:
+        model["batch"] = list(batch)
     else:
-        mod = pa.DataFrame({'batch': batch})
+        model = pa.DataFrame({'batch': batch})
 
-    batch_items = mod.groupby("batch").groups.items()
+    batch_items = model.groupby("batch").groups.items()
     batch_levels = [k for k, v in batch_items]
     batch_info = [v for k, v in batch_items]
     n_batch = len(batch_info)
@@ -52,25 +75,25 @@ def combat(dat, batch, mod, numCovs=None):
     n_array = float(sum(n_batches))
 
     # drop intercept
-    drop_cols = [cname for cname, inter in  ((mod == 1).all()).iterkv() if inter == True]
-    drop_idxs = [list(mod.columns).index(cdrop) for cdrop in drop_cols]
-    mod = mod[[c for c in mod.columns if not c in drop_cols]]
-    numCovs = [list(mod.columns).index(c) if isinstance(c, basestring) else c
-            for c in numCovs if not c in drop_cols]
+    drop_cols = [cname for cname, inter in  ((model == 1).all()).iterkv() if inter == True]
+    drop_idxs = [list(model.columns).index(cdrop) for cdrop in drop_cols]
+    model = model[[c for c in model.columns if not c in drop_cols]]
+    numerical_covariates = [list(model.columns).index(c) if isinstance(c, basestring) else c
+            for c in numerical_covariates if not c in drop_cols]
 
-    design = design_mat(mod, numCovs, batch_levels)
+    design = design_mat(model, numerical_covariates, batch_levels)
 
     print >>sys.stderr, "Standardizing Data across genes."
-    B_hat = np.dot(np.dot(la.inv(np.dot(design.T, design)), design.T), dat.T)
+    B_hat = np.dot(np.dot(la.inv(np.dot(design.T, design)), design.T), data.T)
     grand_mean = np.dot((n_batches / n_array).T, B_hat[:n_batch,:])
-    var_pooled = np.dot(((dat - np.dot(design, B_hat).T)**2), np.ones((n_array, 1)) / n_array)
+    var_pooled = np.dot(((data - np.dot(design, B_hat).T)**2), np.ones((n_array, 1)) / n_array)
 
     stand_mean = np.dot(grand_mean.T.reshape((len(grand_mean), 1)), np.ones((1, n_array)))
     tmp = np.array(design.copy())
     tmp[:,:n_batch] = 0
     stand_mean  += np.dot(tmp, B_hat).T
 
-    s_data = ((dat - stand_mean) / np.dot(np.sqrt(var_pooled), np.ones((1, n_array))))
+    s_data = ((data - stand_mean) / np.dot(np.sqrt(var_pooled), np.ones((1, n_array))))
 
     print >>sys.stderr, "Fitting L/S model and finding priors"
     batch_design = design[design.columns[:n_batch]]
@@ -79,7 +102,7 @@ def combat(dat, batch, mod, numCovs=None):
     delta_hat = []
 
     for i, batch_idxs in enumerate(batch_info):
-        #batches = [list(mod.columns).index(b) for b in batches] 
+        #batches = [list(model.columns).index(b) for b in batches]
         delta_hat.append(s_data[batch_idxs].var(axis=1))
 
     gamma_bar = gamma_hat.mean(axis=1) 
