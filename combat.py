@@ -135,7 +135,7 @@ def combat(data, batch, model, numerical_covariates=None):
 
         dsq = np.sqrt(delta_star[j,:])
         dsq = dsq.reshape((len(dsq), 1))
-	    denom =  np.dot(dsq, np.ones((1, n_batches[j])))
+        denom =  np.dot(dsq, np.ones((1, n_batches[j])))
         numer = np.array(bayesdata[batch_idxs] - np.dot(batch_design.ix[batch_idxs], gamma_star).T)
 
         bayesdata[batch_idxs] = numer / denom
