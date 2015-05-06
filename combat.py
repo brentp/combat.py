@@ -36,7 +36,7 @@ def design_mat(mod, numerical_covariates, batch_levels):
     return design
 
 
-def combat(data, batch, model, numerical_covariates=None):
+def combat(data, batch, model=None, numerical_covariates=None):
     """Correct for batch effects in a dataset
 
     Parameters
@@ -63,7 +63,7 @@ def combat(data, batch, model, numerical_covariates=None):
     if numerical_covariates is None:
         numerical_covariates = []
 
-    if model:
+    if model is not None and isinstance(model, pd.DataFrame):
         model["batch"] = list(batch)
     else:
         model = pd.DataFrame({'batch': batch})
