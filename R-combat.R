@@ -1,3 +1,5 @@
+#!/usr/bin/env R
+
 source("http://bioconductor.org/biocLite.R")
 biocLite("sva")
 library("sva")
