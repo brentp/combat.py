@@ -1,7 +1,7 @@
 language: python
 
 env:
-  - PYTHON=2.7
+  - PYTHON=2.6
   - PYTHON=2.7
   - PYTHON=3.3
   - PYTHON=3.4
