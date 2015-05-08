@@ -21,6 +21,7 @@ install:
 
 before_script:
   - conda install --yes -c r r
+  - conda install --yes -c https://conda.binstar.org/cgat bioconductor-biobase bioconductor-s4vectors bioconductor-godb
   - R --vanilla < R-combat.R
 
 script:
