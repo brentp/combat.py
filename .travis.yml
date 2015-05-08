@@ -21,7 +21,7 @@ install:
 
 before_script:
   - conda install --yes -c r r
-  - ./R-combat.R
+  - R CMD BATCH R-combat.R
 
 script:
   - python combat.py
