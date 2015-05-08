@@ -6,33 +6,22 @@ env:
   - PYTHON=3.3
   - PYTHON=3.4
 
+before_install:
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda/bin:$PATH
+
 install:
   - conda update conda --yes
   - conda create -n testenv --yes pip python=$PYTHON
   - conda update conda --yes
   - source activate testenv
   - conda install --yes --file requirements.txt
-  - python combat.py
-  - python test.py
-
-before_install:
-  - sudo apt-get update -yq
-  - sudo sh -c "echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections"
-  - sudo apt-get install msttcorefonts -qq
-  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b
-  - export PATH=/home/travis/miniconda/bin:$PATH
 
 before_script:
   - conda install --yes -c r r
 
 script:
-  - nosetests --with-doctest
-  # Notebook tests are failing on old matplotlib
-  # because the figures have every so slightly a
-  # different size. Skip until I understand why.
-  - if [ ${DEPS} == modern ] && [ ${PYTHON} != 3.4 ]; then
-    python ipnbdoctest.py examples/*.ipynb;
-    fi
-
+  - python combat.py
+  - python test.py
