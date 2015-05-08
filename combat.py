@@ -5,7 +5,6 @@ import numpy.linalg as la
 import numpy as np
 
 
-
 def adjust_nums(numerical_covariates, drop_idxs):
     # if we dropped some values, have to adjust those with a larger index.
     if numerical_covariates is None: return drop_idxs
@@ -59,7 +58,6 @@ def combat(data, batch, model=None, numerical_covariates=None):
     -------
     corrected : pandas.DataFrame
         A (n_features, n_samples) dataframe of the batch-corrected data
-
     """
     if isinstance(numerical_covariates, basestring):
         numerical_covariates = [numerical_covariates]
@@ -189,7 +187,10 @@ def postvar(sum2, n, a, b):
 
 if __name__ == "__main__":
     # NOTE: run this first to get the bladder batch stuff written to files.
-    """   
+    """
+    source("http://bioconductor.org/biocLite.R")
+    biocLite("sva")
+
 	library("sva")
 	options(stringsAsFactors=FALSE)
 
@@ -202,14 +203,15 @@ if __name__ == "__main__":
         write.table(data.frame(cel=rownames(pheno), pheno), row.names=F, quote=F, sep="\t", file="bladder-pheno.txt")
 
 	edata = exprs(bladderEset)
-        write.table(edata, row.names=T, quote=F, sep="\t", file="bladder-expr.txt")
+    write.table(edata, row.names=T, quote=F, sep="\t", file="bladder-expr.txt")
 	# use dataframe instead of matrix
 	mod = model.matrix(~as.factor(cancer) + age, data=pheno)
-        t = Sys.time()
+    t = Sys.time()
 	cdata = ComBat(dat=edata, batch=as.factor(pheno$batch), mod=mod, numCov=match("age", colnames(mod)))
-        print(Sys.time() - t)
-        print(cdata[1:5, 1:5])
-   """
+    print(Sys.time() - t)
+    print(cdata[1:5, 1:5])
+    write.table(cdata, row.names=True, quote=F, sep="\t", file="r-batch.txt")
+    """
 
     pheno = pd.read_table('bladder-pheno.txt', index_col=0)
     dat = pd.read_table('bladder-expr.txt', index_col=0)
