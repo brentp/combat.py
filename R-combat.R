@@ -2,6 +2,7 @@
 
 source("http://bioconductor.org/biocLite.R")
 biocLite("sva")
+biocLite("bladderbatch")
 library("sva")
 options(stringsAsFactors=FALSE)
 
