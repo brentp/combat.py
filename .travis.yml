@@ -20,7 +20,7 @@ install:
   - conda install --yes --file requirements.txt
 
 before_script:
-  - conda install --yes -c r r
+  - conda install --yes -c r r r-rcolorbrewer
   - conda install --yes -c https://conda.binstar.org/cgat cgat-r-deps cgat-bioconductor-deps bioconductor-biobase bioconductor-s4vectors bioconductor-godb bioconductor-genefilter
   - R --vanilla < R-combat.R
 
