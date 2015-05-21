@@ -18,20 +18,20 @@ def design_mat(mod, numerical_covariates, batch_levels):
 
     mod = mod.drop(["batch"], axis=1)
     numerical_covariates = list(numerical_covariates)
-    print >>sys.stderr, "found %i batches" % design.shape[1]
+    sys.stderr.write("found %i batches\n" % design.shape[1])
     other_cols = [c for i, c in enumerate(mod.columns)
                   if not i in numerical_covariates]
     factor_matrix = mod[other_cols]
     design = pd.concat((design, factor_matrix), axis=1)
     if numerical_covariates is not None:
-        print >>sys.stderr, "found %i numerical covariates..." \
-                            % len(numerical_covariates)
+        sys.stderr.write("found %i numerical covariates...\n"
+                            % len(numerical_covariates))
         for i, nC in enumerate(numerical_covariates):
             cname = mod.columns[nC]
-            print >>sys.stderr, "\t", cname
+            sys.stderr.write("\t{}\n".format(cname))
             design[cname] = mod[mod.columns[nC]]
-    print >>sys.stderr, "found %i categorical variables:" % len(other_cols)
-    print >>sys.stderr, "\t" + ", ".join(other_cols)
+    sys.stderr.write("found %i categorical variables:" % len(other_cols))
+    sys.stderr.write("\t" + ", ".join(other_cols) + '\n')
     return design
 
 
