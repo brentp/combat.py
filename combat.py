@@ -85,7 +85,7 @@ def combat(data, batch, model=None, numerical_covariates=None):
 
     design = design_mat(model, numerical_covariates, batch_levels)
 
-    print >>sys.stderr, "Standardizing Data across genes."
+    sys.stderr.write("Standardizing Data across genes.\n")
     B_hat = np.dot(np.dot(la.inv(np.dot(design.T, design)), design.T), data.T)
     grand_mean = np.dot((n_batches / n_array).T, B_hat[:n_batch,:])
     var_pooled = np.dot(((data - np.dot(design, B_hat).T)**2), np.ones((n_array, 1)) / n_array)
@@ -97,7 +97,7 @@ def combat(data, batch, model=None, numerical_covariates=None):
 
     s_data = ((data - stand_mean) / np.dot(np.sqrt(var_pooled), np.ones((1, n_array))))
 
-    print >>sys.stderr, "Fitting L/S model and finding priors"
+    sys.stderr.write("Fitting L/S model and finding priors\n")
     batch_design = design[design.columns[:n_batch]]
     gamma_hat = np.dot(np.dot(la.inv(np.dot(batch_design.T, batch_design)), batch_design.T), s_data.T)
 
@@ -114,7 +114,7 @@ def combat(data, batch, model=None, numerical_covariates=None):
     a_prior = map(aprior, delta_hat)
     b_prior = map(bprior, delta_hat)
 
-    print >>sys.stderr, ("Finding parametric adjustments")
+    sys.stderr.write("Finding parametric adjustments\n")
     gamma_star, delta_star = [], []
     for i, batch_idxs in enumerate(batch_info):
         #print '18 20 22 28 29 31 32 33 35 40 46'
@@ -126,7 +126,7 @@ def combat(data, batch, model=None, numerical_covariates=None):
         gamma_star.append(temp[0])
         delta_star.append(temp[1])
 
-    print("adjusting data")
+    sys.stdout.write("Adjusting data\n")
     bayesdata = s_data
     gamma_star = np.array(gamma_star)
     delta_star = np.array(delta_star)
@@ -220,9 +220,9 @@ if __name__ == "__main__":
     import time
     t = time.time()
     ebat = combat(dat, pheno.batch, mod, "age")
-    print "%.2f seconds" % (time.time() - t)
- 
-    print ebat.ix[:5, :5]
+    sys.stdout.write("%.2f seconds\n" % (time.time() - t))
+
+    sys.stdout.write(str(ebat.ix[:5, :5]))
 
     ebat.to_csv("py-batch.txt", sep="\t")
 
