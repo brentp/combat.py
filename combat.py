@@ -59,7 +59,7 @@ def combat(data, batch, model=None, numerical_covariates=None):
     corrected : pandas.DataFrame
         A (n_features, n_samples) dataframe of the batch-corrected data
     """
-    if isinstance(numerical_covariates, basestring):
+    if isinstance(numerical_covariates, str):
         numerical_covariates = [numerical_covariates]
     if numerical_covariates is None:
         numerical_covariates = []
@@ -80,7 +80,7 @@ def combat(data, batch, model=None, numerical_covariates=None):
     drop_cols = [cname for cname, inter in  ((model == 1).all()).iterkv() if inter == True]
     drop_idxs = [list(model.columns).index(cdrop) for cdrop in drop_cols]
     model = model[[c for c in model.columns if not c in drop_cols]]
-    numerical_covariates = [list(model.columns).index(c) if isinstance(c, basestring) else c
+    numerical_covariates = [list(model.columns).index(c) if isinstance(c, str) else c
             for c in numerical_covariates if not c in drop_cols]
 
     design = design_mat(model, numerical_covariates, batch_levels)
