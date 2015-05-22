@@ -1,0 +1,31 @@
+language: python
+
+env:
+  - PYTHON=2.6
+  - PYTHON=2.7
+  - PYTHON=3.3
+  - PYTHON=3.4
+
+before_install:
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda/bin:$PATH
+
+install:
+  - conda update conda --yes
+  - conda create -n testenv --yes pip python=$PYTHON
+  - conda update conda --yes
+  - source activate testenv
+  - conda install --yes --file requirements.txt
+
+#before_script:
+#  - conda install --yes -c r r r-rcolorbrewer
+#  - conda install --yes rpy2
+#  - conda install --yes -c https://conda.binstar.org/cgat cgat-r-deps cgat-bioconductor-deps bioconductor-biobase bioconductor-s4vectors bioconductor-godb bioconductor-genefilter
+#  - R --vanilla < R-combat.R
+
+script:
+  - python combat.py
+  - python test.py
+
