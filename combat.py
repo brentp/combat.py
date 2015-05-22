@@ -111,8 +111,8 @@ def combat(data, batch, model=None, numerical_covariates=None):
     t2 = gamma_hat.var(axis=1)
    
 
-    a_prior = map(aprior, delta_hat)
-    b_prior = map(bprior, delta_hat)
+    a_prior = list(map(aprior, delta_hat))
+    b_prior = list(map(bprior, delta_hat))
 
     sys.stderr.write("Finding parametric adjustments\n")
     gamma_star, delta_star = [], []
