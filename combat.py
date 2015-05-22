@@ -28,7 +28,7 @@ def design_mat(mod, numerical_covariates, batch_levels):
                             % len(numerical_covariates))
         for i, nC in enumerate(numerical_covariates):
             cname = mod.columns[nC]
-            sys.stderr.write("\t{}\n".format(cname))
+            sys.stderr.write("\t{0}\n".format(cname))
             design[cname] = mod[mod.columns[nC]]
     sys.stderr.write("found %i categorical variables:" % len(other_cols))
     sys.stderr.write("\t" + ", ".join(other_cols) + '\n')
