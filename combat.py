@@ -137,7 +137,7 @@ def combat(data, batch, model=None, numerical_covariates=None):
         dsq = np.sqrt(delta_star[j,:])
         dsq = dsq.reshape((len(dsq), 1))
         denom =  np.dot(dsq, np.ones((1, n_batches[j])))
-        numer = np.array(bayesdata[batch_idxs] - np.dot(batch_design.ix[batch_idxs], gamma_star).T)
+        numer = np.array(bayesdata[batch_idxs] - np.dot(batch_design.loc[batch_idxs], gamma_star).T)
 
         bayesdata[batch_idxs] = numer / denom
    
@@ -222,7 +222,7 @@ if __name__ == "__main__":
     ebat = combat(dat, pheno['batch'], mod, "age")
     sys.stdout.write("%.2f seconds\n" % (time.time() - t))
 
-    sys.stdout.write(str(ebat.ix[:5, :5]))
+    sys.stdout.write(str(ebat.iloc[:5, :5]))
 
     ebat.to_csv("py-batch.txt", sep="\t")
 
